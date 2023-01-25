@@ -1,76 +1,115 @@
-#include "shell.h"
-
+#include "string.h"
 /**
- * _strlen - returns the length of a string
- * @s: the string whose length to check
+ * _strlen - To get the length of a string
+ * @str: string
  *
- * Return: integer length of string
+ * Return: return the length count
  */
-int _strlen(char *s)
+size_t  _strlen(char *str)
 {
-	int i = 0;
+	size_t i = 0;
 
-	if (!s)
-		return (0);
-
-	while (*s++)
+	while (str[i])
 		i++;
 	return (i);
 }
-
 /**
- * _strcmp - performs lexicogarphic comparison of two strangs.
- * @s1: the first strang
- * @s2: the second strang
+ * _strncmp - compare n charcaters of two string
+ * @dest: first string
+ * @src: second string
+ * @n: number of bytes to compare
  *
- * Return: negative if s1 < s2, positive if s1 > s2, zero if s1 == s2
+ * Return: return 0 on success
  */
-int _strcmp(char *s1, char *s2)
+int _strncmp(char *dest, char *src, size_t n)
 {
-	while (*s1 && *s2)
+	size_t i;
+
+	if (n)
 	{
-		if (*s1 != *s2)
-			return (*s1 - *s2);
-		s1++;
-		s2++;
-	}
-	if (*s1 == *s2)
+		for (i = 0; i < n; i++)
+		{
+			if (dest[i] != src[i])
+				return (dest[i] - src[i]);
+		}
 		return (0);
-	else
-		return (*s1 < *s2 ? -1 : 1);
+	}
+	for (i = 0; dest[i] || src[i]; i++)
+	{
+		if (dest[i] != src[i])
+			return (dest[i] - src[i]);
+	}
+	return (0);
 }
-
 /**
- * starts_with - checks if needle starts with haystack
- * @haystack: string to search
- * @needle: the substring to find
+ * strtoken - tokenize the string for execve call
+ * @buffer: string gotten from getline function
  *
- * Return: address of next char of haystack or NULL
+ * Return: return a array of argument pointers
  */
-char *starts_with(const char *haystack, const char *needle)
+char **strtoken(char *buffer)
 {
-	while (*needle)
-		if (*needle++ != *haystack++)
-			return (NULL);
-	return ((char *)haystack);
+	size_t j = 0, i = 0, count;
+	char *token = NULL, *delim = " \n", *buffer_cpy = NULL;
+	char **string_tokenize = NULL;
+
+	while (buffer[i])
+		i++;
+	buffer_cpy = malloc(sizeof(char) * i + 1);
+	if (!buffer_cpy)
+		return (NULL);
+	_strcpy(buffer_cpy, buffer);
+	count = _strword(buffer, delim);
+	string_tokenize = malloc(sizeof(char *) * count);
+	if (!string_tokenize)
+		return (NULL);
+	token = strtok(buffer_cpy, delim);
+	for (j = 0; token; j++)
+	{
+		string_tokenize[j] = malloc(sizeof(char) * _strlen(token) + 1);
+		_strcpy(string_tokenize[j], token);
+		token = strtok(NULL, delim);
+	}
+	string_tokenize[j] = NULL;
+	free(buffer_cpy);
+	free(buffer);
+	return (string_tokenize);
 }
-
 /**
- * _strcat - concatenates two strings
- * @dest: the destination buffer
- * @src: the source buffer
+ * _strword - return the number of string
+ * @str: string from getline function
+ * @delim: delim use to tokenize the string
  *
- * Return: pointer to destination buffer
+ * Return: return the string count
  */
-char *_strcat(char *dest, char *src)
+int _strword(char *str, char *delim)
 {
-	char *ret = dest;
+	char *token;
+	int count = 0;
 
-	while (*dest)
-		dest++;
+	token = strtok(str, delim);
+	while (token)
+	{
+		count++;
+		token = strtok(NULL, delim);
+	}
+	return (count + 1);
+}
+/**
+ * _strcpy - copy the string from src to dest
+ * @dest: destination
+ * @src: source of string
+ * Return: return a pointer to dest string
+ */
+char *_strcpy(char *dest, char *src)
+{
+	size_t i = 0;
 
-	while (*src)
-		*dest++ = *src++;
-	*dest = *src;
-	return (ret);
+	while (src[i])
+	{
+		dest[i] = src[i];
+		i++;
+	}
+	dest[i] = '\0';
+	return (dest);
 }
